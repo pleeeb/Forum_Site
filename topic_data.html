@@ -1,0 +1,63 @@
+{%for topic in topics%}
+	<tr>
+		<input type="hidden" name="rowTopicID" value="{{topic[3]}}">
+		<td class="tabledata">
+			<a class="madetopics" href={{ url_for('claim', topic_id=topic[3])}}>{{topic[0]}}</a>
+		</td>
+		<td class="tabledata">
+			<input type="hidden" name="uID" value="{{topic[4]}}">
+			<p class="usernames">{{topic[2]}}</p>
+		</td>
+		<td class="tabledata">
+			{{topic[5]}}
+		</td>
+		<td class="tabledata">
+			{{topic[1]}}
+		</td>
+		<td class="tabledata">
+			{{topic[6]}}
+		</td>
+		{% if session['admin'] is defined %}
+			<td>
+				<button type="button" class="remTopic">Remove Topic</button>
+			</td>
+		{% endif %}
+	</tr>
+{%endfor%}
+
+{% if session['admin'] is defined %}
+<script type="text/javascript">
+				$(document).ready(function (){
+					$(".remTopic").on('click', function(e){
+						var topicID = $(this).parent().parent().children(":first-child").val();
+						$.ajax({
+							type: "POST",
+							url : 'removeTopic',
+							data: {'t_id':topicID},
+							cache: false,
+							success: function(data){
+								location.reload();
+							},
+							error: function(jqXHR, text, errorThrown){
+								$('#statusmsg').show();
+								$('#statusmsg').html(text+ " " + errorThrown);
+							}
+						});
+					});
+				});
+</script>
+
+<script type="text/javascript">
+	$(document).ready(function (){
+		$(".usernames").on('click', function(event){
+		var userID = $(this).parent().children(":first-child").val();
+		$('#userIDchoice').val(userID);
+		var sX = event.screenX;
+		var sY = event.screenY;
+		$('#delBox').css("margin-left",sX+10);
+		$('#delBox').css("margin-top",sY-200);
+		$('#delUser').css("display", "block");
+		});
+	});
+</script>
+{% endif %}

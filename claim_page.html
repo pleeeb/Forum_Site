@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>WebDev Debate Replies</title>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='claim.css') }}"></link>
+<script src="{{ url_for('static', filename='claimpagejs.js') }}"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</head>
+<body>
+<script>
+	$(document).ready(function(){
+		$("body").fadeIn(500);
+	});
+</script>
+<noscript><link rel="stylesheet" type="text/css" href="static/mainnoscript.css"></noscript>
+	<div class="head">
+		<p class="title">Debate Forum</p>
+		{% if session['loggedin'] %}
+		<p class="login">Welcome {{ session['username'] }} </p>
+		<button id="logout" class="signup">(Logout)</button>
+		<script>
+				$(document).ready(function (){
+					$("#logout").on('click', function(e){
+						$.ajax({
+							type: "POST",
+							url : "{{ url_for('logout') }}",
+							data: {'logout':'true'},
+							cache: false,
+							success: function(data){
+								location.reload();
+							},
+							error: function(jqXHR, text, errorThrown){
+								$('#statusmsg').show();
+								$('#statusmsg').html(text+ " " + errorThrown);
+							}
+						});
+					});
+				});
+			</script>
+		{% else %}
+		<button id="loginSelect" class="login" onclick="LoginSelect()">Login</button>
+		<button id="signupSelect" class="signup" onclick="SignSelect()">Signup</button>
+		{% endif %}
+	</div>
+	<div style="min-height:100% width:80%">
+	{% with messages = get_flashed_messages() %}
+		{% if messages %}
+			{% for message in messages %}
+			<div>
+				{{message}}
+			</div>
+			{% endfor %}
+		{% endif %}
+	{% endwith %}
+	</div>
+	<div class="headbar">
+		<p class="forumbar">Forum</p>
+		<div class="searchbar">
+			<input title="searchbar" id="searchbar" onkeypress="handle(event)" class="search" type="text" placeholder="Search...">
+			<script>
+					function handle(e){
+						if(e.keyCode === 13){
+							e.preventDefault();
+							var selectedOption = $("input:radio[name=search]:checked").val();
+							if(selectedOption == "claims"){ 
+								var tin = $('#searchbar').val();
+								var href = "{{ url_for('searchclaim', search=tin) }}";
+								window.location.replace(href + tin);
+							}
+							else if (selectedOption == "topics"){
+								var tin = $('#searchbar').val();
+								var href = "{{ url_for('searchtopic', search=tin) }}";
+								window.location.replace(href + tin);
+							}
+						}
+					};
+			</script>
+		</div>
+		<div class="search">
+			<input id="radioclaim" type="radio" name="search" value="claims" checked>
+			<label for="radioclaim">Claims</label>
+			<input id="radiouser" type="radio" name="search" value="topics">
+			<label for="radiouser">Topics</label>
+		</div>
+	</div>
+	
+	<div id="btnsec">
+	<button id="TBack">Back</button>
+		<script>
+			$(document).ready(function (){
+				$('#TBack').click(function(event){
+					event.preventDefault();
+					var href = "{{ url_for('claim',topic_id=claim[4]) }}";
+					$("body").fadeOut(500, function(){
+						window.location.replace(href);
+					})
+							
+				});
+
+			});
+		</script>
+	</div>
+	
+	<div id="replyModal" class="tmod">
+		<div id="modChange" class="tmod-content">
+		<span id="replyspan" class="close">&times;</span>
+			<div class="tmodheader">
+			<h1>Create Reply</h1>
+			</div>
+			<div class="tmodbody">
+				<form name="createRform" method="POST" action="{{url_for('createreply')}}">
+				<fieldset>
+					<legend>Claim Type</legend>
+					<input type="radio" id="clarification" name="crelate" value="Clarification" checked>
+					<label id="lclarif" for="clarification">Clarification</label>
+					<input type="radio" id="support" name="crelate" value="Support">
+					<label id="lsupp" for="support">Support</label>
+					<input type="radio" id="counter" name="crelate" value="Counter">
+					<label id="lcounter" for="counter">Counter</label><br>
+				</fieldset>
+					<label for="CreateInput" class="tbodycontent">Reply Text</label><br>
+					<textarea class="tbodycontent" name="replyhead" id="CreateInput"></textarea><br>
+					<input type="hidden" name="claimID" value="{{claim[3]}}">
+					<input id="replyType" type="hidden" name="replyType" value="norelate">
+					<input id="relateID" type="hidden" name="relateID" value="">
+					<input class="replybutton" type="submit" name="formtype" value="replyform" id="ClaimSubmit">
+				</form>
+			</div>
+		</div>
+	</div>
+	
+	<div id="loginModal" class="tmod">
+		<div id="lmodChange" class="login-signup">
+		<span id="loginspan" class="close">&times;</span>
+			<div class="tmodheader">
+			<h1>Login</h1>
+			</div>
+			<div class="tmodbody">
+				<form class="formstyle" name="loginform" method="POST" action="{{url_for('replylogin')}}">
+					<input type="hidden" name="currentpath" value="{{ claim[3] }}">
+					<label for="loginu" class="tbodycontent">Username</label></br>
+					<input class="tbodycontent" type="text" name="usernamein" placeholder="username" id="loginu"><br>
+					<label for="loginp" class="tbodycontent">Password</label><br>
+					<input class="tbodycontent" type="password" name="passwordin" placeholder="password" id="loginp"><br>
+					<div class="msgbox" id="statusLmsg"></div>
+					<input class="replybutton" type="submit" name="formtype" value="Login" id="loginsub">
+				</form>
+			</div>
+		</div>
+	</div>
+	
+	<div id="signModal" class="tmod">
+		<div id="smodChange" class="login-signup">
+		<span id="signspan" class="close">&times;</span>
+			<div class="tmodheader">
+			<h1>Signup</h1>		
+			</div>
+			<div class="tmodbody">
+			<form class="formstyle" name="signform" id="signform" method="POST" action="{{url_for('replysignup')}}">
+				<input type="hidden" name="currentpath" value="{{ claim[3] }}">
+				<label for="signupu" class="tbodycontent">Username</label></br>
+				<input class="tbodycontent value" type="text" name="usernamein" placeholder="username" id="signupu"
+				required pattern="(?=.*[a-zA-Z]).{3,20}"><br>
+				<div class="msgbox" id="statusmsg"></div>
+				<label for="signupe" class="tbodycontent">Email Address</label><br>
+				<input class="tbodycontent value" type="text" name="email_address" placeholder="Email Address" id="signupe"
+				required pattern="[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"><br>
+				<div class="msgbox" id="statusEmsg"></div>
+				<label for="signupp" class="tbodycontent">Password</label><br>
+				<input class="tbodycontent" type="password" name="passwordin" placeholder="password" id="signupp"
+				required pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{5,20}$"><br>
+				<input class="replybutton" type="submit" name="formtype" value="Signup">
+			</form>
+			</div>
+			<script>
+				$(document).ready(function (){
+					$("#signupu").on('input', function(e){
+						$('#statusmsg').css("visibility", "hidden");
+						
+						$.ajax({
+							type: "POST",
+							url : "{{ url_for('username_check') }}",
+							data: {'usernamein':$('#signupu').val()},
+							cache: false,
+							success: function(data){
+								$('#statusmsg').css("visibility","visible");
+								$('#statusmsg').html(data["reply"]);
+								if(data["sub"]=="false"){
+									$('#signform').attr('onsubmit', 'return false;')
+									$('#signupu').addClass('value');
+								}
+								else{
+									$('#signupu').removeClass('value');
+									if($('#signupe').hasClass('value')){
+										$('#signform').attr('onsubmit', 'return false;')
+									}
+									else(
+										$('#signform').attr('onsubmit', 'return true;')
+									)
+								}
+							},
+							error: function(jqXHR, text, errorThrown){
+								$('#statusmsg').show();
+								$('#statusmsg').html(text+ " " + errorThrown);
+							}
+						});
+					});
+				});
+			</script>
+			<script>
+				$(document).ready(function (){
+					$("#signupe").on('input', function(e){
+						$('#statusEmsg').css("visibility", "hidden");
+						
+						$.ajax({
+							type: "POST",
+							url : "{{ url_for('email_check') }}",
+							data: {'email_address':$('#signupe').val()},
+							cache: false,
+							success: function(data){
+								$('#statusEmsg').css("visibility","visible");
+								$('#statusEmsg').html(data["reply"]);
+								if(data["sub"]=="false"){
+									$('#signform').attr('onsubmit', 'return false;')
+									$('#signupe').addClass('value');
+								}
+								else{
+									$('#signupe').removeClass('value');
+									if($('#signupu').hasClass('value')){
+										$('#signform').attr('onsubmit', 'return false;')
+									}
+									else{
+										$('#signform').attr('onsubmit', 'return true;')
+									}
+								}
+							},
+							error: function(jqXHR, text, errorThrown){
+								$('#statusmsg').show();
+								$('#statusmsg').html(text+ " " + errorThrown);
+							}
+						});
+					});
+				});
+			</script>
+		</div>
+	</div>
+	
+	<div id="delUser" class="userDel">
+	<div id="delBox" class="userDelBox">
+		<form name="deleteform" id="deleteform" method="POST" action="{{url_for('removeUser')}}">
+		<input  id="page" type="hidden" name="page" value="reply">
+		<input  id="userIDchoice" type="hidden" name="userIDchoice" value="">
+		<input type="hidden" name="currentpath" value="{{claim[3]}}">
+		<button id="DeleteUser" class="userDelBox" type="submit">Delete</button>
+		</form>
+	</div>
+	</div>
+
+	<div class="claimstyle">
+		<p class="claimname">{{claim[2]}}</p><p class="claimdate">{{claim[1]}}</p>
+		<p>{{claim[0]}}</p>
+	</div>
+	<div class="replybtn">
+		{% if session['loggedin'] %}
+	<button id="myBtn" onclick="CreateReply()">Create Reply</button><br>
+	{% else %}
+	<p>Sign in to Create a Reply</p>
+	{% endif %}
+	</div>
+	
+	<div id="resultdiv">
+	<script>
+		function getData(){
+			$.ajax({
+				type: "POST",
+				url: "{{ url_for('replyupdate') }}",
+				data: {"claimID": "{{claim[3]}}"},
+				cache: false,
+				success: function(data){
+					$('#resultdiv').html(data);
+				},
+				error: function(jqXHR, text, errorThrown){
+				}
+			});
+		}
+		getData();
+		
+		setInterval(getData, 20000);
+	</script>
+	</div>
+</body>
+</html>

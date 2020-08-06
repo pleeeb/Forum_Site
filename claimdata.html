@@ -1,0 +1,170 @@
+<tr>
+	<th>
+		Claims
+	</th>
+	<th>
+		User
+	</th>
+	<th>
+		Replies
+	</th>
+	<th>
+		Date Created
+	</th>
+	<th>
+		Equivalent
+	</th>
+	<th>
+		Opposed
+	</th>
+	<th>
+		Last Update
+	</th>
+</tr>
+<tr class="firstRow">
+	<td>
+	</td>
+</tr>
+{% for claim in claims %}
+	<tr>
+		<input type="hidden" name="rowClaimID" value="{{claim[3]}}">
+		<td class="tabledata">
+			<a href={{ url_for('replypage', claim_id=claim[3])}}>{{claim[0]}}</a>
+		</td>
+		<td class="tabledata">
+			{{claim[2]}}
+		</td>
+		<td class="tabledata">
+			{{claim[7]}}
+		</td>
+		<td class="tabledata">
+			{{claim[1]}}
+		</td>
+		<td class="tabledata">
+			{{claim[5]}}
+		</td>
+		<td class="tabledata">
+			{{claim[6]}}
+		</td>
+		<td class="tabledata">
+			{{claim[4]}}
+		</td>
+		<td>
+			<label for="actions">Select an Action:</label>
+			<select id="actions" name="actions" class="actions">
+				<option value="Please Select">Please Select</option>
+				<option value="return">Return to Topic</option>
+				<option value="rClaim">Show Related Claims</option>
+				<option value="equiva">Add equivalent claim</option>
+				<option value="oppo">Add opposed claim</option>
+				{% if session['admin'] is defined %}
+					<option value="delete">Delete Claim</option>
+				{% endif %}
+			</select>
+		</td>
+	</tr>
+{% endfor %}
+<script>
+	$(document).ready(function(){
+		$('.actions').change(function(event){
+		var choice = $(this).val();
+		if(choice=="Please Select"){
+			null
+		}
+		else if(choice=="return"){
+			$(this).val("Please Select");
+				$.ajax({
+					type: "GET",
+					url: "{{ url_for('claim',topic_id=topic) }}",
+					data: {"t_id":"{{ topic }}"},
+					cache: false,
+					success: function(data){
+						$('#cTable').fadeOut(250, function(){
+						var newTab = $(data).filter('#cTable').html();
+						$('#cTable').html(newTab);
+						$('#cTable').fadeIn(250);
+					});
+					},
+					error: function(jqXHR, text, errorThrown){
+					}
+				});
+		}
+		else if(choice=="rClaim"){
+			$(this).val("Please Select");
+			var rowID = $(this).parent().parent().children(":first-child").val();
+				$.ajax({
+					type: "POST",
+					url: "{{ url_for('relatedclaims') }}",
+					data: {"rowID":rowID, "t_id":"{{ topic }}"},
+					cache: false,
+					success: function(data){
+						$('#cTable').fadeOut(250, function(){
+						$('#cTable').html(data);
+						$('#cTable').fadeIn(250);
+						});
+					},
+					error: function(jqXHR, text, errorThrown){
+					}
+				});
+		}
+		else if(choice=="equiva"){
+			$(this).val("Please Select");
+			$('#claimModal').css("display","block");
+			$('#claimType').val("equiv");
+			var rowID = $(this).parent().parent().children(":first-child").val();
+			$('#relateID').val(rowID);
+		}
+		else if(choice=="oppo"){
+			$(this).val("Please Select");
+			$('#claimModal').css("display","block");
+			$('#claimType').val("opposed");
+			var rowID = $(this).parent().parent().children(":first-child").val();
+			$('#relateID').val(rowID);
+		}
+		else if(choice=="delete"){
+			var rowID = $(this).parent().parent().children(":first-child").val();
+			$.ajax({
+				type: "POST",
+				url: "{{ url_for('removeClaim') }}",
+				data: {"rowID":rowID, "t_id":"{{ topic }}"},
+				cache: false,
+				success: function(data){
+					var href = "{{ url_for('claim',topic_id=topic)}}";
+					window.location.replace(href);
+				},
+				error: function(jqXHR, text, errorThrown){
+				}
+			});
+		}
+		});	
+	});
+</script>
+{% if claims|length < 1 %}
+	<tr>
+	<td>
+	<p>No related claims available</p>
+	<button id="treturn">Click to return to topic</button>
+	<script>
+			$(document).ready(function(){
+				$('#treturn').on("click",function(event){
+					$.ajax({
+						type: "GET",
+						url: "{{ url_for('claim',topic_id=topic) }}",
+						data: {"t_id":"{{ topic }}"},
+						cache: false,
+						success: function(data){
+							$('#cTable').fadeOut(250, function(){
+							var newTab = $(data).filter('#cTable').html();
+							$('#cTable').html(newTab);
+							$('#cTable').fadeIn(250);
+						});
+						},
+						error: function(jqXHR, text, errorThrown){
+						}
+					});
+				});	
+			});
+	</script>
+	</td>
+	</tr>
+{% endif %}

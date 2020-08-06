@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>WebDev Debate Claims</title>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='topic.css') }}"></link>
+<script src="{{ url_for('static', filename='searchclaimjs.js') }}"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</head>
+<body>
+<script>
+	$(document).ready(function(){
+		$("body").fadeIn(500);
+	});
+</script>
+<noscript><link rel="stylesheet" type="text/css" href="static/mainnoscript.css"></noscript>
+	<div class="head">
+		<p class="title">Title</p>
+		{% if session['loggedin'] %}
+		<p class="login">Welcome {{ session['username'] }} </p>
+		<button id="logout" class="signup">(Logout)</button>
+		<script>
+				$(document).ready(function (){
+					$("#logout").on('click', function(e){
+						$.ajax({
+							type: "POST",
+							url : "{{ url_for('logout') }}",
+							data: {'logout':'true'},
+							cache: false,
+							success: function(data){
+								location.reload();
+							},
+							error: function(jqXHR, text, errorThrown){
+								$('#statusmsg').show();
+								$('#statusmsg').html(text+ " " + errorThrown);
+							}
+						});
+					});
+				});
+			</script>
+		{% else %}
+		<button id="loginSelect" class="login" onclick="LoginSelect()">Login</button>
+		<button id="signupSelect" class="signup" onclick="SignSelect()">Signup</button>
+		{% endif %}
+	</div>
+	<div style="min-height:100% width:80%">
+	{% with messages = get_flashed_messages() %}
+		{% if messages %}
+			{% for message in messages %}
+			<div>
+				{{message}}
+			</div>
+			{% endfor %}
+		{% endif %}
+	{% endwith %}
+	</div>
+	<div class="headbar">
+		<p class="forumbar">Forum</p>
+		<div class="searchbar">
+			<input title="searchbar" type="text" placeholder="Search..." class="search" id="searchbar" onkeypress="handle(event)">
+			<script>
+					function handle(e){
+						if(e.keyCode === 13){
+							e.preventDefault();
+							var selectedOption = $("input:radio[name=search]:checked").val();
+							if(selectedOption == "claims"){ 
+								var tin = $('#searchbar').val();
+								var href = "{{ url_for('searchclaim', search=tin) }}";
+								window.location.replace(href + tin);
+							}
+							else if (selectedOption == "topics"){
+								var tin = $('#searchbar').val();
+								var href = "{{ url_for('searchtopic', search=tin) }}";
+								window.location.replace(href + tin);
+							}
+						}
+					};
+			</script>
+		</div>
+		<div class="search">
+			<input id="radioclaim" type="radio" name="search" value="claims" checked>
+			<label for="radioclaim">Claims</label>
+			<input id="radiouser" type="radio" name="search" value="topics">
+			<label for="radiouser">Topics</label>
+		</div>
+	</div>
+	<div id="btnsec">
+	<button id="TBack">Back</button>
+		<script>
+			$(document).ready(function (){
+				$('#TBack').click(function(event){
+					event.preventDefault();
+					var href = "{{ url_for('main') }}";
+					$("body").fadeOut(500, function(){
+						window.location.replace(href);
+					})
+							
+				});
+
+			});
+		</script>	
+	</div>
+	
+	<div id="claimModal" class="tmod">
+		<div id="modChange" class="tmod-content">
+		<span id="claimspan" class="close">&times;</span>
+			<div class="tmodheader">
+			<h1>Create Claim</h1>
+			</div>
+			<div class="tmodbody">
+				<form name="createCform" method="POST" action="{{url_for('add_claim')}}">
+					<label for="CreateInput" class="tbodycontent">Claim Heading</label><br>
+					<textarea class="tbodycontent" name="claimhead" id="CreateInput"></textarea><br>
+					<p id="CreateText" style="text-align: center; display:none">Please Login to make a Claim</p>
+					<input id="topicID" type="hidden" name="topicID" value="">
+					<input id="claimType" type="hidden" name="claimType" value="norelate">
+					<input id="relateID" type="hidden" name="relateID" value="">
+					<input class="topicbutton" type="submit" name="formtype" value="claimform" id="ClaimSubmit">
+				</form>
+			</div>
+		</div>
+	</div>
+	
+	<div id="loginModal" class="tmod">
+		<div id="lmodChange" class="login-signup">
+		<span id="loginspan" class="close">&times;</span>
+			<div class="tmodheader">
+			<h1>Login</h1>
+			</div>
+			<div class="tmodbody">
+				<form class="formstyle" name="loginform" method="POST" action="{{url_for('searchlogin')}}">
+					<input type="hidden" name="currentpath" value="{{ search }}">
+					<label for="loginu" class="tbodycontent">Username</label></br>
+					<input class="tbodycontent" type="text" name="usernamein" placeholder="username" id="loginu"><br>
+					<label for="loginp" class="tbodycontent">Password</label><br>
+					<input class="tbodycontent" type="password" name="passwordin" placeholder="password" id="loginp"><br>
+					<div class="msgbox" id="statusLmsg"></div>
+					<input class="topicbutton" type="submit" name="formtype" value="Login" id="loginsub">
+				</form>
+			</div>
+		</div>
+	</div>
+	
+	<div id="signModal" class="tmod">
+		<div id="smodChange" class="login-signup">
+		<span id="signspan" class="close">&times;</span>
+			<div class="tmodheader">
+			<h1>Signup</h1>		
+			</div>
+			<div class="tmodbody">
+			<form class="formstyle" name="signform" id="signform" method="POST" action="{{url_for('searchsignup')}}">
+				<input type="hidden" name="currentpath" value="{{ search }}">
+				<label for="signupu" class="tbodycontent">Username</label></br>
+				<input class="tbodycontent value" type="text" name="usernamein" placeholder="username" id="signupu"
+				required pattern="(?=.*[a-zA-Z]).{3,20}"><br>
+				<div class="msgbox" id="statusmsg"></div>
+				<label for="signupe" class="tbodycontent">Email Address</label><br>
+				<input class="tbodycontent value" type="text" name="email_address" placeholder="Email Address" id="signupe"
+				required pattern="[a-zA-Z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"><br>
+				<div class="msgbox" id="statusEmsg"></div>
+				<label for="signupp" class="tbodycontent">Password</label><br>
+				<input class="tbodycontent" type="password" name="passwordin" placeholder="password" id="signupp"
+				required pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{5,20}$"><br>
+				<input class="topicbutton" type="submit" name="formtype" value="Signup">
+			</form>
+			</div>
+			<script>
+				$(document).ready(function (){
+					$("#signupu").on('input', function(e){
+						$('#statusmsg').css("visibility", "hidden");
+						
+						$.ajax({
+							type: "POST",
+							url : "{{ url_for('username_check') }}",
+							data: {'usernamein':$('#signupu').val()},
+							cache: false,
+							success: function(data){
+								$('#statusmsg').css("visibility","visible");
+								$('#statusmsg').html(data["reply"]);
+								if(data["sub"]=="false"){
+									$('#signform').attr('onsubmit', 'return false;')
+									$('#signupu').addClass('value');
+								}
+								else{
+									$('#signupu').removeClass('value');
+									if($('#signupe').hasClass('value')){
+										$('#signform').attr('onsubmit', 'return false;')
+									}
+									else(
+										$('#signform').attr('onsubmit', 'return true;')
+									)
+								}
+							},
+							error: function(jqXHR, text, errorThrown){
+								$('#statusmsg').show();
+								$('#statusmsg').html(text+ " " + errorThrown);
+							}
+						});
+					});
+				});
+			</script>
+			<script>
+				$(document).ready(function (){
+					$("#signupe").on('input', function(e){
+						$('#statusEmsg').css("visibility", "hidden");
+						
+						$.ajax({
+							type: "POST",
+							url : "{{ url_for('email_check') }}",
+							data: {'email_address':$('#signupe').val()},
+							cache: false,
+							success: function(data){
+								$('#statusEmsg').css("visibility","visible");
+								$('#statusEmsg').html(data["reply"]);
+								if(data["sub"]=="false"){
+									$('#signform').attr('onsubmit', 'return false;')
+									$('#signupe').addClass('value');
+								}
+								else{
+									$('#signupe').removeClass('value');
+									if($('#signupu').hasClass('value')){
+										$('#signform').attr('onsubmit', 'return false;')
+									}
+									else{
+										$('#signform').attr('onsubmit', 'return true;')
+									}
+								}
+							},
+							error: function(jqXHR, text, errorThrown){
+								$('#statusmsg').show();
+								$('#statusmsg').html(text+ " " + errorThrown);
+							}
+						});
+					});
+				});
+			</script>
+		</div>
+	</div>
+	
+	<input  id="claimIDchoice" type="hidden" name="claimIDchoice" value="">
+	<div id="topicList" class="topicList">
+	<div class="topicBox">
+	<h2>Choose topic to move to</h2>
+	{%for topic in topics%}
+		<div>
+			<input type="hidden" name="rowTopicID" value="{{topic[3]}}">
+			<button class="tList topicBox">{{topic[0]}}</button>
+		</div>
+	{%endfor%}
+	</div>
+	</div>
+	
+	<div id="delUser" class="userDel">
+	<div id="delBox" class="userDelBox">
+		<form name="deleteform" id="deleteform" method="POST" action="{{url_for('removeUser')}}">
+		<input  id="page" type="hidden" name="page" value="search">
+		<input  id="userIDchoice" type="hidden" name="userIDchoice" value="">
+		<input type="hidden" name="currentpath" value="{{search}}">
+		<button id="DeleteUser" class="userDelBox" type="submit">Delete</button>
+		</form>
+	</div>
+	</div>
+	
+	<table class="tTable" id="cTable">
+		<tr>
+			<th>
+			Claims
+			</th>
+			<th>
+			User
+			</th>
+			<th>
+			Replies
+			</th>
+			<th>
+			Date Created
+			</th>
+			<th>
+			Equivalent
+			</th>
+			<th>
+			Opposed
+			</th>
+			<th>
+			Last Update
+			</th>
+		</tr>
+		<tr class="firstRow">
+		<td>
+		</td>
+		</tr>
+		{%for claim in claims%}
+			<tr>
+				<input type="hidden" name="rowClaimID" value="{{claim[3]}}">
+				<td class="tabledata">
+					<a href={{ url_for('replypage', claim_id=claim[3]) }}>{{claim[0]}}</a>
+				</td>
+				<td class="tabledata">
+					<input type="hidden" name="uID" value="{{claim[6]}}">
+					<p class="usernames">{{claim[2]}}</p>
+				</td>
+				<td class="tabledata">
+					{{claim[9]}}
+				</td>
+				<td class="tabledata">
+					{{claim[1]}}
+				</td>
+				<td class="tabledata">
+					{{claim[7]}}
+				</td>
+				<td class="tabledata">
+					{{claim[8]}}
+				</td>
+				<td class="tabledata">
+					{{claim[4]}}
+				</td>
+				{% if session['loggedin'] %}
+				<td>
+					<input type="hidden" name="topicID" value="{{claim[5]}}">
+					<label for="actions">Select an Action:</label>
+					<select id="actions" name="actions" class="actions">
+						<option value="Please Select">Please Select</option>
+						<option value="rClaim">Show Related Claims</option>
+						<option value="equiva">Add equivalent claim</option>
+						<option value="oppo">Add opposed claim</option>
+						{% if session['admin'] is defined %}
+							<option value="delete">Delete Claim</option>
+							<option value ="move">Move Claim</option>
+						{% endif %}
+					</select>
+				</td>
+				{% endif %}
+			</tr>
+		{%endfor%}
+		<script>
+		$(document).ready(function(){
+			$('.actions').change(function(event){
+			var choice = $(this).val();
+			if(choice=="Please Select"){
+				null
+			}
+			else if(choice=="rClaim"){
+				$(this).val("Please Select");
+				var rowID = $(this).parent().parent().children(":first-child").val();
+				var topicID = $(this).parent().children(":first-child").val();
+				$.ajax({
+					type: "POST",
+					url: "{{ url_for('relatedclaims') }}",
+					data: {"rowID":rowID, "t_id":topicID},
+					cache: false,
+					success: function(data){
+						$('#cTable').fadeOut(250, function(){
+						$('#cTable').html(data);
+						$('#cTable').fadeIn(250);
+					});
+					},
+					error: function(jqXHR, text, errorThrown){
+					}
+				});
+			}
+			else if(choice=="equiva"){
+				$(this).val("Please Select");
+				var rowID = $(this).parent().parent().children(":first-child").val();
+				var topicID = $(this).parent().children(":first-child").val();
+				$('#claimModal').css("display","block");
+				$('#claimType').val("equiv");
+				$('#topicID').val(topicID);
+				var rowID = $(this).parent().parent().children(":first-child").val();
+				$('#relateID').val(rowID);
+			}
+			else if(choice=="oppo"){
+				$(this).val("Please Select");
+				var rowID = $(this).parent().parent().children(":first-child").val();
+				var topicID = $(this).parent().children(":first-child").val();
+				$('#claimModal').css("display","block");
+				$('#claimType').val("opposed");
+				$('#topicID').val(topicID);
+				var rowID = $(this).parent().parent().children(":first-child").val();
+				$('#relateID').val(rowID);
+			}
+			else if(choice=="delete"){
+				var rowID = $(this).parent().parent().children(":first-child").val();
+				$.ajax({
+					type: "POST",
+					url: "{{ url_for('removeClaim') }}",
+					data: {"rowID":rowID, "t_id":topicID},
+					cache: false,
+					success: function(data){
+						var href = "{{ url_for('searchclaim',search=search) }}";
+						window.location.replace(href);
+					},
+					error: function(jqXHR, text, errorThrown){
+					}
+				});
+			}
+			else if(choice=="move"){
+					$(this).val("Please Select");
+					var claimvalue = $(this).parent().parent().children(":first-child").val();
+					$('#claimIDchoice').val(claimvalue);
+					$('#topicList').css("display","block");	
+			}
+		});	
+	});
+	</script>
+	</table>
+	
+<script>
+	$(document).ready(function (){
+		$(".tList").on('click', function(event){
+		var tID = $(this).parent().children(":first-child").val();
+		var cID = $('#claimIDchoice').val();
+			$.ajax({
+				type: "POST",
+				url: "{{ url_for('moveClaim') }}",
+				data: {"topic":tID, 'claim':cID},
+				cache: false,
+				success: function(data){
+					var href = "{{ url_for('searchclaim',search=search)}}";
+					window.location.replace(href);
+				},
+				error: function(jqXHR, text, errorThrown){
+				}
+			});					
+		});
+	});
+</script>
+{% if session['admin'] is defined %}
+<script>
+	$(document).ready(function (){
+		$(".usernames").on('click', function(event){
+		var userID = $(this).parent().children(":first-child").val();
+		$('#userIDchoice').val(userID);
+		var sX = event.screenX;
+		var sY = event.screenY;
+		$('#delBox').css("margin-left",sX+10);
+		$('#delBox').css("margin-top",sY-200);
+		$('#delUser').css("display", "block");
+		});
+	});
+</script>
+{% endif %}
+	
+</body>
+</html>

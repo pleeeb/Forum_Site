@@ -1,0 +1,126 @@
+{%for reply in replies%}
+		<div class="userbox">
+			<input type="hidden" name="uID" value="{{reply[8]}}">
+			<p class="usernames claimname">{{reply[3]}}</p>
+			{% if reply[4]==1 %}
+				<p class="clarification">Clarification</p>
+			{% elif reply[5]==1 %}
+				<p class="support">Support</p>
+			{% elif reply[6]==1 %}
+				<p class="counter">Counter</p>
+			{% endif %}
+		</div>
+		<div class="infobox">
+		<input type="hidden" name="rowReplyID" value="{{reply[0]}}">
+		<p class="claimname name">{{reply[7]}}</p>
+		<p>{{reply[1]}}</p>
+			<div class="replybuttons">
+			<button class="repClass" type="button" class="claimname">Reply</button>
+			{% if session['admin'] is defined %}
+				<button type="button" class="remReply">Delete</button>
+			{% endif %}
+			</div>
+		</div>
+		{%for further in reply[9] %}
+			<div class="userbox replycolour" style="margin-left:{{further[9]}}%">
+			<input type="hidden" name="uID" value="{{further[8]}}">
+			<p class="usernames claimname">{{further[3]}}</p>
+			{% if further[4]==1 %}
+				<p class="clarification">Evidence</p>
+			{% elif further[5]==1 %}
+				<p class="support">Support</p>
+			{% elif further[6]==1 %}
+				<p class="counter">Rebuttal</p>
+			{% endif %}
+			</div>
+			<div class="infobox replycolour" style="margin-left:{{further[9]}}%; ">
+			<input type="hidden" name="rowReplyID" value="{{further[0]}}">
+			<p class="claimname name">{{further[7]}}</p>
+			<p>{{further[1]}}</p>
+				<div class="replybuttons">
+				<button class="repClass" type="button" style="claimname">Reply</button>
+				{% if session['admin'] is defined %}
+					<button type="button" class="remReply">Delete</button>
+				{% endif %}
+				</div>
+			</div>
+			{% for further2 in further[10] recursive %}
+				<div class="userbox replycolour" style="margin-left:{{further2[9]}}%">
+				<input type="hidden" name="uID" value="{{further2[8]}}">
+				<p class="usernames claimname">{{further2[3]}}</p>
+				{% if further2[4]==1 %}
+					<p class="clarification">Evidence</p>
+				{% elif further2[5]==1 %}
+					<p class="support">Support</p>
+				{% elif further2[6]==1 %}
+					<p class="counter">Rebuttal</p>
+				{% endif %}
+				</div>
+				<div class="infobox replycolour" style="margin-left:{{further2[9]}}%">
+				<input type="hidden" name="rowReplyID" value="{{further2[0]}}">
+				<p class="claimname name">{{further2[7]}}</p>
+				<p>{{further2[1]}}</p>
+					<div class="replybuttons">
+					<button class="repClass" type="button" class="claimname">Reply</button>
+					{% if session['admin'] is defined %}
+						<button type="button" class="remReply">Delete</button>
+					{% endif %}
+					</div>
+				</div>
+				{% if further2[10] %}
+					{{loop(further2[10])}}
+				{% endif %}
+			{% endfor %}
+		{% endfor %}
+	{%endfor%}
+	{% if session['loggedin'] %}
+			<script>
+				$(document).ready(function(){
+					$('.repClass').on("click", function(event){
+						var relateID = $(this).parent().parent().children(":first-child").val();
+						$('#replyModal').css("display","block");
+						$('#replyType').val("reply");
+						$('#lclarif').html("Evidence");
+						$('#lcounter').html("Rebuttal");
+						$('#relateID').val(relateID);
+					});
+				});
+			</script>
+	{% endif %}
+{% if session['admin'] is defined %}
+<script>
+				$(document).ready(function (){
+					$(".remReply").on('click', function(e){
+						var replyID = $(this).parent().parent().children(":first-child").val();
+						$.ajax({
+							type: "POST",
+							url : "{{ url_for('removeReply') }}",
+							data: {'r_id':replyID},
+							cache: false,
+							success: function(data){
+								var href = "{{ url_for('replypage',claim_id=claim)}}";
+								window.location.replace(href);
+							},
+							error: function(jqXHR, text, errorThrown){
+								$('#statusmsg').show();
+								$('#statusmsg').html(text+ " " + errorThrown);
+							}
+						});
+					});
+				});
+</script>
+
+<script>
+	$(document).ready(function (){
+		$(".usernames").on('click', function(event){
+		var userID = $(this).parent().children(":first-child").val();
+		$('#userIDchoice').val(userID);
+		var sX = event.screenX;
+		var sY = event.screenY;
+		$('#delBox').css("margin-left",sX+50);
+		$('#delBox').css("margin-top",sY-100);
+		$('#delUser').css("display", "block");
+		});
+	});
+</script>
+{% endif %}

@@ -1,0 +1,308 @@
+html{
+	height: 100%;
+}
+
+body{
+	margin:0;
+	padding:0;
+	background: white;
+	display: none;
+	height: 100%;
+}
+
+div.head{
+	position: relative;
+	background: #22cde0;
+	min-height: 10%;
+}
+
+p.title{
+	color: white;
+	display: inline;
+	position: absolute;
+	top: 15%;
+	left: 2%;
+	font-size: 2vh;
+}
+
+p.login{
+	color: white;
+	display: inline;
+	position: absolute;
+	left: 65%;
+	top: 30%;
+}
+
+p.forumbar{
+	position: relative;
+	display: inline;
+}
+
+button.signup{
+	color: white;
+	display: inline;
+	position: absolute;
+	left: 80%;
+	top: 40%;
+	background-color: #22cde0;
+}
+
+button.login{
+	color: white;
+	display: inline;
+	position: absolute;
+	left: 75%;
+	top: 40%;
+	background-color: #22cde0;
+}
+
+div.flashed{
+	min-height: 100%;
+	width: 80%;
+}
+
+div.headbar{
+	position: relative;
+	background: #ccdadb;
+	margin-right: 25%;
+	height: 2%;
+	min-height: 20px;
+}
+
+div.searchbar{
+	display: inline;
+	position: relative;
+	right: 5%;
+	float: right;
+	margin-left:2%;
+	margin-top: 0.1%;
+}
+
+div.search{
+	display: inline;
+	position: relative;
+	right: 5%;
+	float: right;
+}
+
+input.search{
+	font-size: 12px;
+	position: relative;
+	bottom: 2px;
+}
+
+form.formstyle{
+	position: relative;
+	height: 15%;
+}
+
+div.tmod{
+	position: fixed;
+	display: none; 
+	z-index: 1; 
+	left: 0;
+	top: 0;
+	width: 100%; 
+	height: 100%; 
+	overflow: auto; 
+	background-color: rgb(0,0,0); 
+	background-color: rgba(0,0,0,0.4); 
+}
+
+div.tmod-content{
+	position: relative;
+	top: 0%;
+	left: 0%;
+	background-color: white;
+	margin: 10% auto;
+	padding: 1rem 1.5rem;
+	border-radius: 0.5rem;
+	width: 25%;
+	height: 45%;
+}
+
+div.tmodheader{
+	position: relative;
+	padding-bottom: 15%;
+	height: 20%;
+	width: 50%;
+}
+
+div.login-signup{
+	position: relative;
+	top: -10%;
+	left: 30%;
+	background-color: white;
+	margin: 10% auto;
+	padding: 1rem 1.5rem;
+	border-radius: 0.5rem;
+	width: 15%;
+	height: 35%;
+}
+
+span.close{
+	background-color: lightgrey;
+	float: right;
+	width: 1.5rem;
+	line-height: 1.5rem;
+	text-align: center;
+	cursor: pointer;
+	border-radius: 0.25rem;
+}
+
+div.tmodbody{
+	position: relative;
+	padding-bottom: 10%;
+	width: 90%;
+	height: 50%;
+}
+
+label.tbodycontent{
+	position: relative;
+	margin-top: 20%;
+	margin-left: 35%;
+	font-weight: bold;
+	font-size: 75%;
+}
+
+textarea.tbodycontent{
+	margin-top: 5%;
+	margin-left: 13%;
+	margin-bottom: 5%;
+	width: 50%;
+	height: 25%;
+	padding: 15% 10%;
+	text-align: left top;
+}
+
+input.tbodycontent{
+	position: relative;
+	margin-left: 15%;
+	width: 75%;
+	height: 75%;
+}
+
+input.replybutton {	
+	position: relative;
+	min-width: 10%;
+	min-height: 100%;
+	width: 50%;
+	height: 25%;
+	margin-left: 20%;
+	margin-bottom: 1%;
+}
+
+div.msgbox{
+	margin-left: 25%;
+	margin-bottom: 10%;
+	visibility: hidden;
+}
+
+img.TCreateButton{
+	max-width: 1.5%;
+	height: auto;
+	display: inline;
+	padding-left: 0.5%;
+	cursor: pointer;
+}
+
+p.TCreateButton{
+	display: inline;
+	padding-left: 2px;
+	margin-bottom: 1px;
+	text-align: center;
+	cursor: pointer;
+}
+
+div.userbox{
+	border-right: 2px solid black;
+	border-bottom: 1px solid black;
+	border-left: 1px solid black;
+	border-top: 1px solid black;
+	overflow: hidden;
+	position: relative;
+}
+
+div.infobox{
+	border: 1px solid black;
+	position: relative;
+	overflow: hidden;
+	margin-bottom: 1%;
+	margin-top: 0px;
+	padding-top: 0px;
+}
+
+p.usernames{
+	cursor: pointer;
+}
+
+div.userDel{
+	display: none; 
+	z-index:1; 
+	position: absolute; 
+	width:100%; 
+	height:100%; 
+	background-color: rgb(0,0,0); 
+	background-color: rgba(0,0,0,0.4);
+}
+
+div.userDelBox{
+	background-color:white; 
+	width:10%; 
+	height:2%; 
+	margin-left:25%; 
+	margin-top: 10%;
+}
+
+button.userDelBox{
+	width: 100%; 
+	height:100%;
+}
+
+div.claimstyle{
+	border: 2px solid black;
+}
+
+p.claimname{
+	display: inline;
+}
+
+p.claimdate{
+	display: inline; 
+	margin-left:1%;
+}
+
+div.replybtn{
+	margin-bottom: 3%;
+}
+
+tr.firstRow{
+	display:none;
+}
+
+p.clarification{
+	display: inline; 
+	background-color:yellow;
+}
+
+p.support{
+	display: inline; 
+	background-color:green;
+}
+
+p.counter{
+	display: inline; 
+	background-color:red;
+}
+
+p.name{
+	font-size:12px;
+}
+
+div.replybuttons{
+	text-align: right;
+}
+
+div.replycolour{
+	background-color: #B0C4DE;
+}
